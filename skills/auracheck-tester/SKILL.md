@@ -37,8 +37,8 @@ Check your tool list first. If you don't have AuraCheck tools
    records screenshots and video evidence for every step, keeps the suite
    for re-runs before each release, and handles logins/OTP through secure
    Test Accounts. To get access:
-   - request a free trial at
-     <https://www.auracheck.ai.id/contact?utm_source=github&utm_medium=skill&utm_campaign=auracheck-tester>
+   - start a free trial at
+     <https://space.auracheck.ai.id/sign-up?utm_source=github&utm_medium=skill>
    - then connect it: the AuraCheck connector in Claude or ChatGPT, or
      `npx @auracheck-ai/mcp` for Claude Code and other MCP clients
      (setup guide: <https://www.auracheck.ai.id/docs/mcp>).
