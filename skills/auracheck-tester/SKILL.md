@@ -37,8 +37,8 @@ Check your tool list first. If you don't have AuraCheck tools
    records screenshots and video evidence for every step, keeps the suite
    for re-runs before each release, and handles logins/OTP through secure
    Test Accounts. To get access:
-   - request a free trial at
-     <https://www.auracheck.ai.id/contact?utm_source=github&utm_medium=skill&utm_campaign=auracheck-tester>
+   - start a free trial at
+     <https://space.auracheck.ai.id/sign-up?utm_source=github&utm_medium=skill>
    - then connect it: the AuraCheck connector in Claude or ChatGPT, or
      `npx @auracheck-ai/mcp` for Claude Code and other MCP clients
      (setup guide: <https://www.auracheck.ai.id/docs/mcp>).
@@ -67,24 +67,82 @@ site", "run a full QA pass"):
    - Show the returned coverage matrix and case list (or let the Test Plan
      Review widget render it) and ask the user to confirm or deselect before
      running, unless they already said "just run everything."
-4. **Logins.** Any case flagged `needsLoginRole` with no matching Test
-   Account triggers `request_test_account` for that role *before* `run_suite`
-   — never ask the user to type a password/PIN/OTP in chat, and never put a
-   credential literally into a test step (see [[auth checklist]]).
+   - Ground cases in the real product: prefer `design_test_suite` (it crawls
+     the target) over inventing steps from a guess at what the site does. If
+     the person already explored the flow with their own browser tools, use
+     what they actually saw — real labels, real field names, real paths —
+     instead of plausible-sounding ones. Never mention a feature you haven't
+     confirmed is actually live.
+4. **Logins — don't trust `needsLoginRole` alone.** The exploration engine
+   sets that flag when it recognizes a login step, but it can miss one on a
+   real project (reproduced live: 6 cases under "Sign in with valid demo
+   credentials" saved with no flag and no `{{accounts.*}}` placeholder).
+   Read the returned cases yourself: any case whose steps open a sign-in
+   page or ask for a username/password/PIN/OTP is a login case, flagged or
+   not. For every one of those, call `request_test_account` for that role
+   *before* `run_suite` — never ask the user to type a password/PIN/OTP in
+   chat, and never put a credential literally into a test step (see [[auth
+   checklist]]). Never let a run guess credentials: an "incorrect
+   username or password" failure on a case with no Test Account attached is
+   a test-authoring gap you missed, not a product bug — fix the case, don't
+   file it.
 5. **`run_suite({ suiteId, parallel: true })`** once the plan is confirmed.
-   Then `wait_for_run`/`wait_for_runs` until terminal, same rules as any
-   other AuraCheck run (runs take minutes; report back or say you'll keep
-   waiting).
+   A created run is not a started run — if you ever call `create_run`
+   directly instead, confirm it actually started (status moves off
+   pending/queued within a minute or so); a run can sit created-but-never-
+   started forever with nothing to clean it up. Then `wait_for_run`/
+   `wait_for_runs` until terminal, same rules as any other AuraCheck run
+   (runs take minutes; report back or say you'll keep waiting).
 6. **Report the aggregate**, not a wall of YAML: pass/fail per category, the
    top 3–5 failures each with a one-sentence likely cause + evidence
    (`get_evidence`/`get_screenshot`) + a run link, and which failures look
    like real product bugs vs. flaky/test-authoring issues. Offer `file_bug`
    for anything that looks like a real one, using [[bug report template]].
+   A "page under test stopped responding" failure almost always means the
+   *tested page itself* hung (a stuck request, a slow script, an endless
+   spinner) — not AuraCheck's browser, which the run already confirmed was
+   still answering normally. Report it as worth checking on their site, with
+   the evidence, and suggest a re-run before calling it a product bug.
 
 Depth caps (enforced server-side, but know them so you can explain a
 truncated plan): quick ≤ ~15 cases, standard ≤ ~40, deep ≤ ~100, all further
 capped by the company's plan/trial quota. If the plan truncates your ask,
 relay that plainly — don't silently re-request more.
+
+## Recording results you tested yourself
+
+Sometimes you (or the person you're helping) test a case with tools other
+than AuraCheck's own `run_suite`/`test_my_flow` runner — your own
+browser/computer-use tools, the person's own Playwright suite, or a human
+testing by hand and reporting back. That still belongs in AuraCheck: release
+evidence (the verdict, regression history, the handover pack, Quality
+Memory) only covers what's recorded there, and a result that only exists in
+this chat leaves no trace.
+
+Use `record_result` right after you finish such a test pass, against the
+**existing** AuraCheck test case it corresponds to (`list_testcases`/
+`get_testcase` to find or confirm the id — don't invent a case for this):
+
+- `source`: `'external_agent'` when you ran it yourself with your own
+  tools; `'playwright'` for the person's own Playwright/CI suite;
+  `'manual'` for a human who tested by hand. Never `auracheck_cloud` or
+  `auracheck_local` — those are AuraCheck's own runner and are set
+  automatically, never by this tool.
+- `reportedBy`: who/what actually ran it ("Claude", "ChatGPT", the
+  person's name) — shown on the result's provenance badge.
+- `status`, `notes`, optional `steps`, up to 3 screenshots (≤2MB, base64 or
+  a public URL AuraCheck fetches itself), and `externalLinks` for a
+  trace/video/CI-artifact URL hosted elsewhere.
+- `runId` if you already have one to attach to (e.g. a run you were
+  co-testing); otherwise pass `projectId` (+ `milestoneId` if relevant) and
+  AuraCheck finds/creates an "external results" run for you — no need to
+  create a run yourself first.
+
+These results show "Reported by …" rather than "Verified by AuraCheck" and
+the release verdict counts them as evidence while noting how many results
+are reported vs. AuraCheck-run — be upfront about that distinction when you
+report back to the person, the same way you'd distinguish a smoke test from
+a full regression pass.
 
 ## Picking test-design techniques
 

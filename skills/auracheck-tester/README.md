@@ -9,6 +9,12 @@ permission/role, and opt-in security/accessibility checks — instead of a
 single happy-path click-through, and turning run results into clear,
 actionable bug reports.
 
+This skill is also published at
+[`github.com/AuraCheck-E2E-AI/skills`](https://github.com/AuraCheck-E2E-AI/skills)
+(the name `auracheck` was already taken on GitHub, so the org is
+`AuraCheck-E2E-AI`). The copy of record lives inside the main AuraCheck
+monorepo at `skills/auracheck-tester/`; the public repo mirrors it.
+
 ## What's in here
 
 - **`SKILL.md`** — the entry point: when to use it, the one-prompt flow for
@@ -33,8 +39,8 @@ actionable bug reports.
 
 **With a skills-aware client** (Claude Code, Claude.ai with Skills, or any
 agent that supports the Agent Skills format): point the client at this
-directory (or copy it into your skills folder — see the repo README) and it loads automatically when you're working with AuraCheck's
-MCP tools.
+directory (or clone the [published repo](https://github.com/AuraCheck-E2E-AI/skills))
+and it loads automatically when you're working with AuraCheck's MCP tools.
 
 **Without skill support**: every file in `references/` is also served
 directly by AuraCheck's MCP server as plain MCP resources (`resources/
@@ -47,13 +53,20 @@ tools, in particular `design_test_suite`, `run_suite`, `test_my_flow`,
 AuraCheck's remote MCP server (Claude Desktop/Claude.ai/ChatGPT connector)
 or the local stdio server (`npx @auracheck-ai/mcp`) to get them.
 
+**Not connected yet?** You need an AuraCheck account and a company first —
+start a free trial at
+[auracheck.ai.id/sign-up](https://space.auracheck.ai.id/sign-up?utm_source=github&utm_medium=skill),
+then connect the MCP server from your company's Integrations page.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE). Free to use, fork, and adapt.
 
 ## Contributing
 
-Issues and PRs are welcome —
+Issues and PRs are welcome at
+[`github.com/AuraCheck-E2E-AI/skills`](https://github.com/AuraCheck-E2E-AI/skills) —
 especially more domain checklists (e.g. SaaS billing, booking/reservation
 flows) and more market-specific edge-case files for markets beyond
 Indonesia.
+
